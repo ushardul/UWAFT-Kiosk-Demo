@@ -4,7 +4,7 @@ The demo application for the UWAFT Kiosk will emulate the features available for
 
 The application will basically be a detailed image of the car which can be zoomed and panned. Clicking on certain parts of the car will result in more information being displayed in a popup context with a rotatable image of the part. Flipping by reaching the edge of the screen and panning will result in different layers of the car being shown/hidden.
 
-The features that are expected to be working in the completed application are the following and will be done by pe:
+The features that are expected to be working in the completed application are the following and who is working on it:
 
 Geo:
 -	Pan on the main drawing of the car
