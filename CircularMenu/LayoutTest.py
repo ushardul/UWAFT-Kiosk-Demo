@@ -15,8 +15,8 @@ class MyApp (App):
     def build (self):
         parent = BoxLayout ()
         self.btnIndex = 1
-        self.c = BoxLayout ()
-        editlayout = BoxLayout (orientation='vertical', size_hint = (0.2, 1.0))
+        self.c = CircularLayout ()
+        editlayout = BoxLayout (orientation='vertical')
         addwidgetbutton = Button (text='Add buttons')
         addwidgetbutton.bind (on_press=self.add_widget_action)
         rotateleftbutton = Button (text='Rotate Left')
@@ -26,8 +26,8 @@ class MyApp (App):
         editlayout.add_widget (addwidgetbutton)
         editlayout.add_widget (rotateleftbutton)
         editlayout.add_widget (rotaterightbutton)
-        parent.add_widget (editlayout)
         parent.add_widget (self.c)
+        parent.add_widget (editlayout)
         return parent
 
     def add_widget_action (self, instance):
@@ -36,10 +36,10 @@ class MyApp (App):
         self.btnIndex += 1
 
     def rotate_right_action (self, instance):
-        self.c.do_right_rotation()
+        self.c.do_rotation()
 
     def rotate_left_action (self, instance):
-        self.c.do_left_rotation()
+        self.c.do_rotation(-1)
 
 if __name__ == '__main__':
     MyApp().run ()

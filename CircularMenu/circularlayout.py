@@ -28,16 +28,16 @@ class CircularLayout (FloatLayout):
                 max_child = c
         
         layout_radius = math.ceil (max_size/math.sqrt(2*(1-math.cos(math.pi/len(self.children)))))
+
         width_given, height_given = self.size
-
-        width_required = (layout_radius + max_child.size[0])*2
-        height_required = (layout_radius + max_child.size[1])*2
-
-        if width_required > width_given:
-            pass
+        width_required = layout_radius*2 + max_child.size[0]
+        height_required = layout_radius*2 + max_child.size[1]
+        if width_required > width_given and max_child:
+            max_child.size[0] = math.floor(width_given/2 - layout_radius)
+            print math.floor(width_given/2 - layout_radius)
         if height_required > height_given:
-            pass
-        
+            max_child.size[1] = math.floor(height_given/2 - layout_radius)
+        print max_child.size
         temp_center_x = self.pos[0] + layout_radius + max_child.size[0]/2
         temp_center_y = self.pos[1] + layout_radius + max_child.size[1]/2
         
@@ -51,16 +51,13 @@ class CircularLayout (FloatLayout):
 
         self._max_widgets = len(self.children)
 
-    def do_left_rotation (self, steps=1):
-        if len(self.children) == 0:
+    def do_rotation (self, steps=1):
+        num_widgets = len(self.children)
+        if num_widgets == 0:
             return
-        self._start_angle += 2*math.pi/len(self.children)
-        self._do_layout ()
-
-    def do_right_rotation (self, steps=1):
-        if len(self.children) == 0:
-            return
-        self._start_angle -= 2*math.pi/len(self.children)
+        steps %= num_widgets
+        self._start_angle -= 2*math.pi/num_widgets*steps
+        self._start_angle = self._start_angle%(2*math.pi)
         self._do_layout ()
 
     def add_widget (self, widget, index=0):
