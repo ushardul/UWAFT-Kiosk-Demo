@@ -26,27 +26,28 @@ class CircularLayout (FloatLayout):
             if size > max_size:
                 max_size = size
                 max_child = c
-        
+        print max_size
         layout_radius = math.ceil (max_size/math.sqrt(2*(1-math.cos(math.pi/len(self.children)))))
 
         width_given, height_given = self.size
         width_required = layout_radius*2 + max_child.size[0]
         height_required = layout_radius*2 + max_child.size[1]
+
         if width_required > width_given and max_child:
-            max_child.size[0] = math.floor(width_given/2 - layout_radius)
-            print math.floor(width_given/2 - layout_radius)
+            max_child.size = max_child.size[0] - math.floor(layout_radius + max_child.size[0] - width_given/2), max_child.size[1]
         if height_required > height_given:
-            max_child.size[1] = math.floor(height_given/2 - layout_radius)
-        print max_child.size
+            max_child.size[1] = max_child.size[0], math.floor(height_given/2 - layout_radius)
+
         temp_center_x = self.pos[0] + layout_radius + max_child.size[0]/2
         temp_center_y = self.pos[1] + layout_radius + max_child.size[1]/2
-        
         theta = self._start_angle
         theta_increment = 2*math.pi/len(self.children)
         
         for c in self.children:
-            c.center_x = temp_center_x + math.cos (theta)*layout_radius
-            c.center_y = temp_center_y + math.sin (theta)*layout_radius
+            new_center = [0, 0]
+            new_center[0] = temp_center_x + math.cos (theta)*layout_radius
+            new_center[1] = temp_center_y + math.sin (theta)*layout_radius
+            self.reposition_child (c, center=new_center)
             theta += theta_increment
 
         self._max_widgets = len(self.children)

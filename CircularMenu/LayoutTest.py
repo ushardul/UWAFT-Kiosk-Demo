@@ -32,7 +32,8 @@ class MyApp (App):
 
     def add_widget_action (self, instance):
         btnText = 'Button text ' + str(self.btnIndex)
-        self.c.add_widget(Button (text=btnText))
+        btnTemp = Button (text=btnText)
+        self.c.add_widget(btnTemp)
         self.btnIndex += 1
 
     def rotate_right_action (self, instance):
