@@ -14,9 +14,12 @@ class MyApp (App):
     
     def build (self):
         parent = BoxLayout ()
+        def print_move (self, touch):
+            print touch.x, ', ', touch.y
+        parent.bind (on_touch_move=print_move)
         self.btnIndex = 1
         self.c = CircularLayout ()
-        editlayout = BoxLayout (orientation='vertical')
+        editlayout = BoxLayout (orientation='vertical', size_hint = (0.2, 1))
         addwidgetbutton = Button (text='Add buttons')
         addwidgetbutton.bind (on_press=self.add_widget_action)
         rotateleftbutton = Button (text='Rotate Left')
@@ -35,6 +38,7 @@ class MyApp (App):
         btnTemp = Button (text=btnText)
         self.c.add_widget(btnTemp)
         self.btnIndex += 1
+        print self.c.get_child().text
 
     def rotate_right_action (self, instance):
         self.c.do_rotation()
