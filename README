@@ -1,0 +1,19 @@
+This is the demo application for the UWAFT kiosk.
+
+The demo application for the UWAFT kiosk will emulate the features available for the final kiosk application but without polished graphics.
+
+The application will basically be a detailed image of the car which can be zoomed and panned. Clicking on certain parts of the car will result in more information being displayed in a popup context with a rotatable image of the part. Flipping by reaching the edge of the screen and panning will result in different layers of the car being shown/hidden.
+
+The features that are expected to be working in the completed application and who is working on the feature are the following:
+
+Geo:
+-	Pan on the main drawing of the car
+-	Flip to remove and show different internal layers of a car such as chassis, electrical components, mechanical systems, etc.
+
+Arsalan:
+-	Zoom on individual areas of the main drawing of the car
+-	Click on individual parts of a car to show popup with detailed information on the feature
+
+Shardul:
+-	Rotate detailed view of feature
+-	Putting together individual parts of UI
