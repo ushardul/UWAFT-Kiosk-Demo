@@ -11,19 +11,18 @@ from circularlayout import CircularLayout
 
 class CircularMenu (CircularLayout):
     rotationCounter = 0
-    swipe = 0
 
     def __init__(self, update, **kvargs):
         self.update = update
         super (CircularMenu, self).__init__(**kvargs)
     
     def on_touch_down (self, touch):
+        # sets which object the touch initially hit
         if self.get_child().collide_point(touch.x, touch.y)== False:
             touch.ud['rotate']=True
             rotationCounter = 0
         else:
             touch.ud['expand']=True
-            swipe = 0
 
     def on_touch_move (self, touch):
         if 'rotate' in touch.ud:
@@ -34,16 +33,16 @@ class CircularMenu (CircularLayout):
                 self.do_rotation (int(-1*self.rotationCounter/math.fabs(self.rotationCounter)))
                 self.rotationCounter = 0
                 self.update.rotated()
-        elif 'expand' in touch.ud:
-            self.swipe += touch.dx
-            if self.swipe > 50:
-                self.update.showChild(self.get_child().text)            
+        elif 'expand' in touch.ud and touch.x-touch.ox > 100:
+            self.update.showChild(self.get_child().text)
             
 class CustomInfoScreen (AnchorLayout):
 
+    # get rid of the sliding info pane
     def rotated (self):
         self.clear_widgets ()
 
+    # shows the sliding info pane with an animation
     def showChild (self, t):
         if len(self.children) == 0:
             info = Button (text=t, size_hint=(1.0, 0.5), x=self.pos[0], center_y = self.center[1])
