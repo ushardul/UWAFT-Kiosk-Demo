@@ -43,3 +43,23 @@ class CircularLayout (FloatLayout):
             i = (i - 1)%num_widgets
             if i == self._first_widget:
                 break
+
+    # Gets children as the first children being the one immediately to the right
+    def get_child (self, index=0):
+        return self.children[(self._first_widget + index)%len(self.children)
+
+    def add_widget (self, widget, index = 0):
+        widget.bind (
+            size = self._trigger_layout,
+            size_hint = self._trigger_layout,
+            pos = self._trigger_layout,
+            pos_hint = self._trigger_layout)
+        return super (FloatLayout, self).add_widget (widget,index)
+
+    def remove_widget (self, widget):
+        widget.unbind (
+            size = self._trigger_layout.
+            size_hint = self._trigger_layout,
+            pos = self._trigger_layout,
+            pos_hint = self._trigger_layout)
+        return super (Layout, self).remove_widget (widget)
