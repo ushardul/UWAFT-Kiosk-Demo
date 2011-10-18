@@ -3,63 +3,102 @@ import math
 from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
+from kivy.uix.button import Button
+from CircularAnimationUtilities import CircularAnimationUtilities
+from kivy.animation import Animation
 
 class CircularLayout (FloatLayout):
     def __init__ (self, **kvargs):
         self._first_widget = -1
-        self._trigger_layout = Clock.create_trigger(self._do_layout, -1)
-        super (FloatLayout, self).__init (**kvargs)
-        self.bind (children = self._trigger_layout,
-                   pos = self._trigger_layout,
-                   pos_hint = self._trigger_layout,
-                   size_hint = self._trigger_layout,
-                   size = self._trigger_layout)
+        self._layout_radius = 0
+        super (CircularLayout, self).__init__ (**kvargs)
 
     def _do_layout (self, *largs):
-        if len (self.children) == 0
+        if len (self.children) == 0:
             return
-        num_widgets = len(self.children)
-        temp_center_x, temp_center_y = self.center
-        
+
+        # local variable initialization for efficiency
+        CENTER = self.center
         children = self.children [:]
+        NUM_WIDGETS = len(children)
         max_width = max_height = 0
+
+        # find the max widths and heights
         for c in children:
             csx, csy = c.size
             if csx > max_width:
                 max_width = csx
             if csy > max_height:
                 max_height = csy
+        # It is now known that an object with the greatest diagonal in the layout
+        # will at MOST have a width and height equal to the max width and height
         max_diagonal = math.sqrt (max_width*max_width + max_height*max_height)
 
-        layout_radius = math.ceil (max_diagonal/2/math.sqrt (2*(1 - math.cos (math.pi/len(children)))))
+        # The required radius is calculated using arc sectors and cosine law
+        self._layout_radius = math.ceil (max_diagonal/2/math.sqrt (2*(1 - math.cos (math.pi/NUM_WIDGETS))))
+        LAYOUT_RADIUS = self._layout_radius
 
+        # Now simply position the center of the children's evenly over the circle
         theta = 0
-        THETA_INCREMENT = 2*math.pi/len(self.children)
+        THETA_INCREMENT = 2*math.pi/NUM_WIDGETS
         i = self._first_widget
+        # Using modulous operations, starts laying out children from the "first"
+        # child specified - the child directly to the right in the layout
         while True:
-            new_center = temp_center_x + math.cos (theta)*layout_radius, temp_center_y + math.sin (theta)*layout_radius
-            self.reposition_child(children[i], center=new_center)
-            theta += theta_increment
-            i = (i - 1)%num_widgets
+            self.reposition_child(children[i],
+                                  center=(CENTER[0] + math.cos (theta)*LAYOUT_RADIUS, CENTER[1] + math.sin (theta)*LAYOUT_RADIUS))
+            theta += THETA_INCREMENT
+            i = (i - 1)%NUM_WIDGETS
             if i == self._first_widget:
                 break
 
+    def do_rotation (self, steps = 1):
+        NUM_WIDGETS = len(self.children)
+        if NUM_WIDGETS == 0:
+            return
+        
+        animations = []
+
+        testMap = []
+
+        theta = 0
+        THETA_INCREMENT = 2*math.pi/NUM_WIDGETS
+
+        if (steps > 0):
+            THETA_INCREMENT *= -1
+        
+        for i in range (0, NUM_WIDGETS):
+            animations.append (CircularAnimationUtilities.createArcAnimation (3, self.center, self._layout_radius, theta, theta + THETA_INCREMENT))
+            testMap.append ((theta, theta + THETA_INCREMENT))
+            theta += THETA_INCREMENT
+
+        i = self._first_widget
+        animIndex = 0
+        children = self.children [:]
+        while True:
+            animations[animIndex].start (children[i])
+            print children[i].text, " animated with ", testMap [animIndex]
+            animIndex += 1
+            i = (i - 1)%NUM_WIDGETS
+            if i == self._first_widget:
+                break
+
+        self._first_widget = (self._first_widget - steps)%NUM_WIDGETS
+                        
+
     # Gets children as the first children being the one immediately to the right
     def get_child (self, index=0):
-        return self.children[(self._first_widget + index)%len(self.children)
+        return self.children[(self._first_widget + index)%len(self.children)]
 
-    def add_widget (self, widget, index = 0):
-        widget.bind (
-            size = self._trigger_layout,
-            size_hint = self._trigger_layout,
-            pos = self._trigger_layout,
-            pos_hint = self._trigger_layout)
-        return super (FloatLayout, self).add_widget (widget,index)
 
+    # Binds the new widget callback so that the layout is rearranged when
+    # a new widget is added and changes the first widget
+    def add_widget (self, widget, index=0):
+        self._first_widget += 1
+        return super (FloatLayout, self).add_widget (widget, index)
+
+    # Binds the remove widget callback so that layout is rearranged when
+    # a widget is removed and changes the first widget
     def remove_widget (self, widget):
-        widget.unbind (
-            size = self._trigger_layout.
-            size_hint = self._trigger_layout,
-            pos = self._trigger_layout,
-            pos_hint = self._trigger_layout)
-        return super (Layout, self).remove_widget (widget)
+        self._first_widget -= 1
+        return super (FloatLayout, self).remove_widget (widget)

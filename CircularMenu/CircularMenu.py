@@ -18,29 +18,40 @@ class CircularMenu (CircularLayout):
     
     def on_touch_down (self, touch):
         # sets which object the touch initially hit
-        if self.get_child().collide_point(touch.x, touch.y)== False:
-            touch.ud['rotate']=True
-            rotationCounter = 0
-        else:
+        touch.ud['rotate']=True
+        if self.get_child().collide_point(touch.x, touch.y)== True:
             touch.ud['expand']=True
 
     def on_touch_move (self, touch):
-        if 'rotate' in touch.ud:
+        if 'expand' in touch.ud and touch.x-touch.ox > 100:
+            self.update.showChild(self.get_child().text)
+        elif 'expand' in touch.ud and touch.x - touch.ox < -100:
+            self.update.unShow ()
+        elif 'rotate' in touch.ud:
             # see statics -> moments
             self.rotationCounter += (touch.x - self.center_x)*touch.dy - (touch.y-self.center_y)*touch.dx
             # mess with the > 30000 value to make the wheel rotate faster/slower
             if math.fabs(self.rotationCounter) > 30000:
                 self.do_rotation (int(-1*self.rotationCounter/math.fabs(self.rotationCounter)))
                 self.rotationCounter = 0
-                self.update.rotated()
-        elif 'expand' in touch.ud and touch.x-touch.ox > 100:
-            self.update.showChild(self.get_child().text)
+                self.update.unShow()
+
+    def on_touch_up (self, touch):
+        touch.ud ['rotate']=False
+        rotationCounter = 0
+        touch.ud ['expand']=False
             
 class CustomInfoScreen (AnchorLayout):
 
-    # get rid of the sliding info pane
-    def rotated (self):
+    def _remove_child (self, instance, widget):
         self.clear_widgets ()
+
+    # get rid of the sliding info pane
+    def unShow (self):
+        if len(self.children) != 0:
+            animation = Animation(center=(self.x, self.center[1]),  t='out_quad')
+            animation.bind (on_complete=self._remove_child)
+            animation.start (self.children[0])
 
     # shows the sliding info pane with an animation
     def showChild (self, t):
