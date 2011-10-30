@@ -62,6 +62,7 @@ class CustomInfoScreen (AnchorLayout):
             animation.start (info)
 
 class MainMenu (App):
+    
     def build (self):
         parent = BoxLayout ()
 

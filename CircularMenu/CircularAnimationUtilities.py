@@ -24,7 +24,7 @@ class CircularAnimationUtilities:
     @staticmethod
     def createArcAnimation (circDuration, center, radius, startAngle, endAngle):
         arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-        arcAnim = Animation (pos = arcPos, duration = 0.15, t='linear')
+        arcAnim = Animation (center = arcPos, duration = 0.15, t='linear')
         animIncrement = CircularAnimationUtilities.calculateIncrement (radius, startAngle, endAngle)
         if startAngle > endAngle:
             animIncrement *= -1
@@ -32,7 +32,7 @@ class CircularAnimationUtilities:
         singleDuration = circDuration/(steps + 0.0)
         startAngle += animIncrement
         arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-        arcAnim = arcAnim + Animation (pos=arcPos, duration = singleDuration, t='in_quad')
+        arcAnim = arcAnim + Animation (center=arcPos, duration = singleDuration, t='in_quad')
         for i in range (2, steps):
             startAngle += animIncrement
             if animIncrement < 0 and startAngle < endAngle:
@@ -40,9 +40,9 @@ class CircularAnimationUtilities:
             elif animIncrement > 0 and startAngle > endAngle:
                 startAngle = endAngle;
             arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-            arcAnim = arcAnim + Animation (pos=arcPos, duration = singleDuration, t='linear')
+            arcAnim = arcAnim + Animation (center=arcPos, duration = singleDuration, t='linear')
         startAngle += animIncrement
         arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-        arcAnim = arcAnim + Animation (pos=arcPos, duration = singleDuration, t='out_quad')
+        arcAnim = arcAnim + Animation (center=arcPos, duration = singleDuration, t='out_quad')
         return arcAnim
 

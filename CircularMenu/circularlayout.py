@@ -45,6 +45,7 @@ class CircularLayout (FloatLayout):
         # Using modulous operations, starts laying out children from the "first"
         # child specified - the child directly to the right in the layout
         while True:
+            center2=(CENTER[0] + math.cos (theta)*LAYOUT_RADIUS, CENTER[1] + math.sin (theta)*LAYOUT_RADIUS)
             self.reposition_child(children[i],
                                   center=(CENTER[0] + math.cos (theta)*LAYOUT_RADIUS, CENTER[1] + math.sin (theta)*LAYOUT_RADIUS))
             theta += THETA_INCREMENT
@@ -56,20 +57,18 @@ class CircularLayout (FloatLayout):
         NUM_WIDGETS = len(self.children)
         if NUM_WIDGETS == 0:
             return
-        
         animations = []
 
-        testMap = []
-
         theta = 0
-        THETA_INCREMENT = 2*math.pi/NUM_WIDGETS
+        negative = 1
 
         if (steps > 0):
-            THETA_INCREMENT *= -1
+            negative = -1
+
+        THETA_INCREMENT = 2*math.pi/NUM_WIDGETS*negative
         
         for i in range (0, NUM_WIDGETS):
             animations.append (CircularAnimationUtilities.createArcAnimation (3, self.center, self._layout_radius, theta, theta + THETA_INCREMENT))
-            testMap.append ((theta, theta + THETA_INCREMENT))
             theta += THETA_INCREMENT
 
         i = self._first_widget
@@ -77,9 +76,8 @@ class CircularLayout (FloatLayout):
         children = self.children [:]
         while True:
             animations[animIndex].start (children[i])
-            print children[i].text, " animated with ", testMap [animIndex]
             animIndex += 1
-            i = (i - 1)%NUM_WIDGETS
+            i = (i - negative)%NUM_WIDGETS
             if i == self._first_widget:
                 break
 
