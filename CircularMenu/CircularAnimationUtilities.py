@@ -15,17 +15,20 @@ from kivy.animation import Animation
 class CircularAnimationUtilities:
 
     @staticmethod
-    def calculateIncrement (radius, startAngle, endAngle):
+    def calculateIncrement (radius, startAngle, endAngle, incrDenom):
         # Should do some calculations to ensure a smooth rotation given
         # the parameters rather than arbritary hard coded value
-        _INCREMENT = math.pi/200
+        _INCREMENT = math.pi/incrDenom
         return _INCREMENT
 
     @staticmethod
-    def createArcAnimation (circDuration, center, radius, startAngle, endAngle):
+    def createArcAnimation (circDuration, center, radius, startAngle, endAngle, incrDenom, callback = None):
         arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-        arcAnim = Animation (center = arcPos, duration = 0.15, t='linear')
-        animIncrement = CircularAnimationUtilities.calculateIncrement (radius, startAngle, endAngle)
+        if callback != None:
+            arcAnim = Animation (center = arcPos, duration = 0.15, t='linear')
+        else:
+            arcAnim = Animation (center = arcPos, duration = 0.15, t='linear')
+        animIncrement = CircularAnimationUtilities.calculateIncrement (radius, startAngle, endAngle, incrDenom)
         if startAngle > endAngle:
             animIncrement *= -1
         steps = (int)(math.ceil ((endAngle - startAngle)/animIncrement))

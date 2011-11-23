@@ -1,5 +1,6 @@
 __all__ = ('CircularLayout',)
 import math
+import types
 from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
@@ -53,12 +54,14 @@ class CircularLayout (FloatLayout):
             if i == self._first_widget:
                 break
 
-    def do_rotation (self, steps = 1):
+    def do_rotation (self, callback=None, steps = 1, incrDenom = 100, circDuration=10, radius = 0):
+        if radius == 0:
+            radius = self._layout_radius
         NUM_WIDGETS = len(self.children)
         if NUM_WIDGETS == 0:
             return
         animations = []
-
+        
         theta = 0
         negative = 1
 
@@ -68,10 +71,15 @@ class CircularLayout (FloatLayout):
         THETA_INCREMENT = 2*math.pi/NUM_WIDGETS*negative
         
         for i in range (0, NUM_WIDGETS):
-            animations.append (CircularAnimationUtilities.createArcAnimation (3, self.center, self._layout_radius, theta, theta + THETA_INCREMENT))
+            animations.append (CircularAnimationUtilities.createArcAnimation(circDuration, self.center, radius, theta, theta + THETA_INCREMENT,incrDenom))
             theta += THETA_INCREMENT
 
         i = self._first_widget
+        
+        #bind the callback function to the first widget if a callback is sent as parameter
+        if type(callback) == types.FunctionType:
+            animations[i].bind(on_complete=callback)
+        
         animIndex = 0
         children = self.children [:]
         while True:
