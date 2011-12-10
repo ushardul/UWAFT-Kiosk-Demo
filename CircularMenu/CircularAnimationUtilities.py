@@ -1,14 +1,7 @@
-'''
-Widget animation
-================
-
-This is showing an example of a animation creation, and how you can apply yo a
-widget.
-'''
 __all__ = ('CircularAnimationUtilities',)
 import kivy
 import math
-kivy.require('1.0.7')
+kivy.require('1.0.9')
 
 from kivy.animation import Animation
 

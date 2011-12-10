@@ -45,7 +45,6 @@ class CircularLayout (FloatLayout):
         # Using modulous operations, starts laying out children from the "first"
         # child specified - the child directly to the right in the layout
         while True:
-            center2=(CENTER[0] + math.cos (theta)*LAYOUT_RADIUS, CENTER[1] + math.sin (theta)*LAYOUT_RADIUS)
             self.reposition_child(children[i],
                                   center=(CENTER[0] + math.cos (theta)*LAYOUT_RADIUS, CENTER[1] + math.sin (theta)*LAYOUT_RADIUS))
             theta += THETA_INCREMENT
