@@ -4,7 +4,7 @@ from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
-from CircularAnimationUtilities import CircularAnimationUtilities
+from CircularAnimation.CircularAnimationUtilities import CircularAnimationUtilities
 from kivy.animation import Animation
 
 class CircularLayout (FloatLayout):
@@ -13,7 +13,7 @@ class CircularLayout (FloatLayout):
         self._layout_radius = 0
         super (CircularLayout, self).__init__ (**kvargs)
 
-    def _do_layout (self, *largs):
+    def do_layout (self, *largs):
         if len (self.children) == 0:
             return
 
