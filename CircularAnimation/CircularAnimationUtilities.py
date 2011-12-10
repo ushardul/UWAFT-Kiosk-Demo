@@ -1,17 +1,11 @@
-'''
-Widget animation
-================
-
-This is showing an example of a animation creation, and how you can apply yo a
-widget.
-'''
+__all__ = ('CircularAnimationUtilities',)
 import kivy
 import math
-kivy.require('1.0.7')
+kivy.require('1.0.9')
 
 from kivy.animation import Animation
 
-class CircularAnimationUtilites:
+class CircularAnimationUtilities:
 
     @staticmethod
     def calculateIncrement (radius, startAngle, endAngle):
@@ -23,15 +17,15 @@ class CircularAnimationUtilites:
     @staticmethod
     def createArcAnimation (circDuration, center, radius, startAngle, endAngle):
         arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-        arcAnim = Animation (pos = arcPos, duration = 0.15, t='linear')
+        arcAnim = Animation (center = arcPos, duration = 0.15, t='linear')
         animIncrement = CircularAnimationUtilities.calculateIncrement (radius, startAngle, endAngle)
-        steps = (int)(math.ceil ((endAngle - startAngle)/animIncrement))
-        singleDuration = circDuration/(steps + 0.0)
         if startAngle > endAngle:
             animIncrement *= -1
+        steps = (int)(math.ceil ((endAngle - startAngle)/animIncrement))
+        singleDuration = circDuration/(steps + 0.0)
         startAngle += animIncrement
         arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-        arcAnim = arcAnim + Animation (pos=arcPos, duration = singleDuration, t='in_quad')
+        arcAnim = arcAnim + Animation (center=arcPos, duration = singleDuration, t='in_quad')
         for i in range (2, steps):
             startAngle += animIncrement
             if animIncrement < 0 and startAngle < endAngle:
@@ -39,9 +33,9 @@ class CircularAnimationUtilites:
             elif animIncrement > 0 and startAngle > endAngle:
                 startAngle = endAngle;
             arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-            arcAnim = arcAnim + Animation (pos=arcPos, duration = singleDuration, t='linear')
+            arcAnim = arcAnim + Animation (center=arcPos, duration = singleDuration, t='linear')
         startAngle += animIncrement
         arcPos = (center[0] + math.cos (startAngle)*radius, center[1] + math.sin (startAngle)*radius)
-        arcAnim = arcAnim + Animation (pos=arcPos, duration = singleDuration, t='out_quad')
+        arcAnim = arcAnim + Animation (center=arcPos, duration = singleDuration, t='out_quad')
         return arcAnim
 
