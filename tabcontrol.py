@@ -7,19 +7,18 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.config import Config
 from tablayout import TabLayout
+from tablayout import Tab
 from kivy.uix.button import Button
+from kivy.uix.togglebutton import ToggleButton
 
 class InformationScreen(BoxLayout):
     tabInterface = ObjectProperty(None)
 
     def __init__ (self, data, **kvargs):
-        self.bind (tabInterface=self.build_interface)
         super (BoxLayout, self).__init__(**kvargs)
-
-    def build_interface(self, parent, widget):
         tabs = TabLayout ()
-        tabs.add_tab ('test 1', Button (text='tab 1'))
-        tabs.add_tab ('test 2', Button (text='tab 2'))
+        tabs.add_tab (Tab (ToggleButton (text='test 1'), Button (text='tab 1')))
+        tabs.add_tab (Tab (ToggleButton (text='test 2'), Button (text='tab 2')))
         self.tabInterface.add_widget (tabs)
 
 class InformationApp(App):
