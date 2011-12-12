@@ -14,7 +14,7 @@ class CircularLayout (FloatLayout):
         self._layout_radius = radius
         super (CircularLayout, self).__init__ (**kvargs)
 
-    def _do_layout (self,*largs):
+    def do_layout (self,*largs):
         if len (self.children) == 0:
             return
 
@@ -55,7 +55,7 @@ class CircularLayout (FloatLayout):
             if i == self._first_widget:
                 break
 
-    def do_rotation (self, callback=None, steps = 1, incrDenom = 100, circDuration=10, radius = 0):
+    def do_rotation (self, callback=None, oncall=None, steps = 1, incrDenom = 100, circDuration=10, radius = 0):
         if radius == 0:
             radius = self._layout_radius
         NUM_WIDGETS = len(self.children)
@@ -73,12 +73,13 @@ class CircularLayout (FloatLayout):
         
         for i in range (0, NUM_WIDGETS):
             animations.append (CircularAnimationUtilities.createArcAnimation(circDuration, self.center, radius, theta, theta + THETA_INCREMENT,incrDenom))
+            animations[i].bind(on_progress=oncall)
             theta += THETA_INCREMENT
 
         i = self._first_widget
         
         #bind the callback function to the first widget if a callback is sent as parameter
-        if type(callback) == types.FunctionType:
+        if callback != None:
             animations[i].bind(on_complete=callback)
         
         animIndex = 0

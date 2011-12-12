@@ -8,16 +8,11 @@ from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.scatter import Scatter
 from kivy.animation import Animation
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.label import Label
 from kivy.uix.image import Image
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.floatlayout import FloatLayout
-from kivy.properties import OptionProperty, StringProperty
 from circularlayout import CircularLayout
 from CircularAnimationUtilities import *
 from kivy.core.window import Window
-from kivy.uix.anchorlayout import AnchorLayout
 from kivy.clock import Clock
 
 
@@ -48,12 +43,13 @@ class RadialMenu (App):
         wheel = ScatterImage('wheel.png',(400,400))
         parent.add_widget(wheel)
         
-        followWheel = Scatter(size=(160,140),pos=(Window.center[0],Window.center[1]),size_hint=(None,None))
-        followWheel.add_widget(Image(source='comparc.png',size=(160,140),size_hint=(None,None)))
-        parent.add_widget(followWheel)
+        size = (470,470)
+        followWheelWrap = Scatter(size=size,pos=(Window.center[0]-225,Window.center[1]-225),size_hint=(None,None))
+        folloWheelInnerWrap = Scatter(size=(160,140),pos=(size[0]-160,0),size_hint=(None,None),rotation=-2.5)
+        folloWheelInnerWrap.add_widget(Image(source='comparc.png',size_hint=(1,1)))
+        followWheelWrap.add_widget(folloWheelInnerWrap)
         
-        wheelCirc = CircularLayout(pos=(Window.center[0]-80,Window.center[1]-70),size_hint=(None,None),size=(160,140),radius=180)
-        wheelCirc.add_widget(followWheel)
+        parent.add_widget(followWheelWrap)
         
         button = [5]
         for i in range(1,6):
@@ -73,22 +69,22 @@ class RadialMenu (App):
         
         parent.add_widget(c)
         
-        def callback(ins):
+        def callback(*args):
             c.do_rotation(incrDenom = 30, circDuration = .1)
-        def callback2(ins):
-            followWheel.rotation -= 10
-        def callback3(ins):
-            wheelCirc.do_rotation(incrDenom=30,circDuration=.1,radius=180)
+        def callback2(*args):
+            a = Animation(rotation=360,duration=3,t='in_bounce')
+            a.start(followWheelWrap)
             
-        b = Button(text="click",size_hint=(.2,.1),pos=(200,0))
+        b = Button(text="click",size_hint=(.1,.1),pos=(0,0))
         b.bind(on_press=callback)
-        b2 = Button(text="rotate",size_hint=(.2,.1),pos=(400,0))
+        b2 = Button(text="rotate",size_hint=(.1,.1),pos=(100,0))
         b2.bind(on_press=callback2)
-        b3 = Button(text="revolve",size_hint=(.2,.1),pos=(600,0))
-        b3.bind(on_press=callback3)
         parent.add_widget(b)
         parent.add_widget(b2)
-        parent.add_widget(b3)
+        
+        
+        #timePane = Image(source="img/Extended.png",size_hint=(None,None),size=(900,600),allow_stretch=True,keep_ratio=False)
+        #parent.add_widget(timePane)
         
         return parent
 
