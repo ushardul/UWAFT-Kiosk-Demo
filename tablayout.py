@@ -1,6 +1,7 @@
 import kivy
 kivy.require ('1.0.9')
 
+from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import DictProperty, ObjectProperty, StringProperty
@@ -36,7 +37,7 @@ class Tab:
     lyt_button = ObjectProperty (None)
     lyt_content = ObjectProperty (None)
     
-    def __init__ (self, button, content):
-        self.lyt_button = button
+    def __init__ (self, label, content):
+        self.lyt_button = ToggleButton (text=label)
         self.lyt_content = content
         

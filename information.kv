@@ -1,19 +1,22 @@
-#:kivy 1.0.7
+#:kivy 1.0.9
 
-<InformationScreen>:	
+<InformationView>:	
 	size_hint: (1, 1)
 	orientation: 'vertical'
-	tabInterface: tab_interface
+	tab_cont: tab_container
+	pic_cont: picture_container
+	vid_cont: video_container
 	padding: 10
 	spacing: 5
 
 	Label:
-		text: 'Title'
+		text: root.title
 		size_hint_y: 0.05
 		font_size: 18
+		bold: True
 		
 	BoxLayout:
-		id:tab_interface
+		id: tab_container
 		size_hint: (1, 0.65)
 		orientation: 'vertical'
 				
@@ -23,10 +26,11 @@
 		spacing: 10
 		
 		BoxLayout:
+			id: video_container
 			orientation: 'vertical'
 			size_hint: (0.3, 1)
 			Video:
-				source: 'img/Wildlife.wmv'
+				source: root.vid_src
 				play: playswtch.active
 				allow_stretch: True
 			Switch:
@@ -36,6 +40,7 @@
 			size_hint_y: 1
 			
 			GridLayout:
+				id: picture_container
 				rows:1
 				spacing:10
 				size_hint: (None, 1)
