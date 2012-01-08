@@ -8,6 +8,11 @@
 	vid_cont: video_container
 	padding: 10
 	spacing: 5
+	
+	canvas:
+		Rectangle:
+			source: 'img/bg.jpg'
+			size: (root.width, root.height)
 
 	Label:
 		text: root.title
@@ -44,34 +49,6 @@
 				rows:1
 				spacing:10
 				size_hint: (None, 1)
-				
-				Image:
-					source: 'img/car1.jpg'
-					width:self.image_ratio*self.height
-					size_hint: (None, 1)
-					allow_stretch:True
-					keep_ratio: False
-					
-				Image:
-					source: 'img/car2.jpg'
-					width:self.image_ratio*self.height
-					size_hint: (None, 1)
-					allow_stretch:True
-					keep_ratio: False
-				
-				Image:
-					source: 'img/car3.jpg'
-					width:self.image_ratio*self.height
-					size_hint: (None, 1)
-					allow_stretch:True
-					keep_ratio: False
-					
-				Image:
-					source: 'img/car4.jpg'
-					width:self.image_ratio*self.height
-					size_hint: (None, 1)
-					allow_stretch:True
-					keep_ratio: False
 					
 <TabLayout>:
 	content_obj: content_obj

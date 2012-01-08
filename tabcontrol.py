@@ -38,11 +38,15 @@ class InformationView(BoxLayout):
         else:
             for picture in pictures:
                 self.pic_cont.add_widget (picture)
+                picture.bind (height=self.testchange)
+
+    def testchange (self, wid, value):
+        wid.width = wid.image_ratio * value
 
 class InformationApp(App):
     def build (self):
-        p = Parser ('C:\Documents and Settings\Administrator\Desktop\UWAFT-Kiosk-Demo\info.uwaft')
-        return p.get_view ('Some View')
+        p = Parser ('C:\Users\Shardul\Desktop\UWAFT-Kiosk-Demo\info.uwaft')
+        return p.get_view ('Some Other View')
 
 class Parser:
     def __init__ (self, parseSource):
@@ -73,6 +77,9 @@ class Parser:
                     txt_cnt = Label (text=self._get_property (line))
                     url_cont.add_widget(txt_cnt)
                     line = fsource.readline ()
+            if len (tabs) == 0:
+                raise SyntaxError ('No tabs specified for view')
+            
             v_video = None
             if 'Video' in line:
                 v_video = self._get_property (line)
@@ -80,11 +87,12 @@ class Parser:
             v_pictures = []
             while ('Picture' in line):
                 temp_image = Image (source=self._get_property (line), size_hint=(None, 1), allow_stretch = True, keep_ratio = False)
-                temp_image.width = temp_image.image_ratio * temp_image.height
                 v_pictures.append (temp_image)
                 line = fsource.readline ()
             
             self.views [v_title] = InformationView (v_title, tabs, v_video, v_pictures)
+        if len (self.views) == 0:
+            raise SyntaxError ('No views specified')
 
     def _get_property (self, raw):
         return raw.split (':')[1].lstrip().rstrip()

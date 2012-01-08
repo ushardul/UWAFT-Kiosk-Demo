@@ -7,8 +7,8 @@ View: Some View
 		Text: Other text goes here
 		Url: test.com
 		Url: uwaterloo.ca
-	Picture: test.jpeg
-	Picture: test2.jpeg
+	Picture: img/car1.jpg
+	Picture: img/car2.jpg
 View: Some Other View
 	Tab: Tab 1
 		Text: Some tab text goes here
@@ -19,5 +19,5 @@ View: Some Other View
 		Url: test.com
 		Url: uwaterloo.ca
 	Video: img/Wildlife.wmv
-	Picture: test.jpeg
-	Picture: test2.jpeg
+	Picture: img/car3.jpg
+	Picture: img/car4.jpg
