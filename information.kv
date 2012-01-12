@@ -30,16 +30,9 @@
 		size_hint_y: 0.3
 		spacing: 10
 		
-		BoxLayout:
+		Video:
 			id: video_container
-			orientation: 'vertical'
 			size_hint: (0.3, 1)
-			Video:
-				source: root.vid_src
-				play: playswtch.active
-				allow_stretch: True
-			Switch:
-				id: playswtch
 
 		ScrollView:
 			size_hint_y: 1
