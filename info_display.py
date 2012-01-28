@@ -14,6 +14,28 @@ from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import *
 
+class ExpandableImage (FloatLayout):
+    _full = False
+
+    def __init__ (self, _img_source, **kvargs):
+        super (ExpandableImage, self).__init__(**kvargs)
+        self._img = Image (source = _img_source)
+        self._btn = Button (text='Expand', pos_hint={'top':0.9, 'right':0.9}, size_hint=(0.1, 0.1))
+        self._btn.bind (on_press=self._expand_image)
+        self.add_widget (self._img)
+        self.add_widget (self._btn)
+        self._btn.width = 100
+
+    def _expand_image (self, wid):
+        if self._full == False:
+            self.size_hint=(1, 1)
+            wid.text='Collapse'
+        else:
+            self.size_hint=(1, 0.5)
+            wid.text='Expand'
+        self._btn.width = 100
+        self._full = not(self._full)
+
 class InformationView(BoxLayout):
     tab_cont = ObjectProperty(None)
     title = StringProperty ('Title')
@@ -51,9 +73,11 @@ class InformationView(BoxLayout):
             if type (children) == FloatLayout:
                 return
         self.pre_cont = FloatLayout (size_hint = (1, 1))
-        self.pre_cont.canvas.insert (0, Color (0,0,0,0.5))
+        self.pre_cont.canvas.insert (0, Color (0,0,0,0.75))
         self.pre_cont.canvas.insert (1, Rectangle (size=self.size))
-        _image = Image (source = wid.source)
+        _image = Image (source = wid.source,
+                        pos_hint={'center_x':0.5, 'center_y':0.5},
+                        size_hint=(0.8, 0.8))
         _btn = Button (text='Dismiss', pos=(15, 15), size_hint= (0.2, 0.1))
         _btn.bind (on_release =self._rmv_expanded_image)
         self.pre_cont.add_widget (_image)
