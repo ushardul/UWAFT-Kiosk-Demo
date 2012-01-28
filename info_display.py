@@ -1,6 +1,7 @@
 import kivy
 kivy.require('1.0.9')
 
+import math
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty, StringProperty
@@ -15,85 +16,104 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import *
 
 class ExpandableImage (FloatLayout):
-    _full = False
 
-    def __init__ (self, _img_source, **kvargs):
+    def __init__ (self, _img_source, expansion_cont, **kvargs):
         super (ExpandableImage, self).__init__(**kvargs)
-        self._img = Image (source = _img_source)
-        self._btn = Button (text='Expand', pos_hint={'top':0.9, 'right':0.9}, size_hint=(0.1, 0.1))
-        self._btn.bind (on_press=self._expand_image)
+
+        self._expansion_cont = expansion_cont
+        
+        self._img = Image (source = _img_source,
+                           pos_hint={'x':0, 'y':0})
+        
+        self._btn = Button (text='Show',
+                            pos_hint={'top':1, 'center_x':0.5},
+                            size_hint=(0.4, 0.2),
+                            background_color=(1,1,1,0.75))
+        self._btn.bind (on_release=self._add_expanded_image)
+
+    def set_up (self):
         self.add_widget (self._img)
         self.add_widget (self._btn)
-        self._btn.width = 100
 
-    def _expand_image (self, wid):
-        if self._full == False:
-            self.size_hint=(1, 1)
-            wid.text='Collapse'
-        else:
-            self.size_hint=(1, 0.5)
-            wid.text='Expand'
-        self._btn.width = 100
-        self._full = not(self._full)
+    def _add_expanded_image (self, wid):
+        for child in self._expansion_cont.children:
+            if type (child) == FloatLayout:
+                self._expansion_cont.remove_widget (child)
+        self.pre_cont = FloatLayout (size_hint = (1, 1))
+        self.pre_cont.canvas.add (Color (0,0,0,0.75))
+        self.pre_cont.canvas.add (Rectangle (size=self._expansion_cont.size))
+        _image = Image (source = self._img.source,
+                        pos_hint={'center_x':0.5, 'center_y':0.5},
+                        keep_ratio =False, allow_stretch=True, 
+                        size_hint=(0.8, 0.8))
+        _btn = Button (text='Hide', size_hint= (0.1, 0.8),
+                       background_color=(1,1,1,0.75))
+        def _temp (wid, temp):
+            _btn.right = _image.right
+            _btn.center_y = ((_image.top-_image.y)*0.5) + _image.y
+        _image.bind (pos = _temp)
+        _btn.bind (on_release =self._rmv_expanded_image)
+        self.pre_cont.add_widget (_image)
+        self.pre_cont.add_widget (_btn)
+        self._expansion_cont.add_widget (self.pre_cont)
+    
+    def _rmv_expanded_image (self, touch):
+        self.pre_cont.parent.remove_widget (self.pre_cont)
 
 class InformationView(BoxLayout):
     tab_cont = ObjectProperty(None)
     title = StringProperty ('Title')
     pic_cont = ObjectProperty (None)
     vid_cont = ObjectProperty (None)
+    t_lyt = None
+    pictures = None
 
     def __init__ (self, title, tabs, video = None, pictures = [], **kvargs):
         super (BoxLayout, self).__init__(**kvargs)        
         self.title = title
 
-        t_lyt = TabLayout ()
+        self.t_lyt = TabLayout ()
         for tab in tabs:
-            t_lyt.add_tab (tab)
-        self.tab_cont.add_widget (t_lyt)
+            self.t_lyt.add_tab (tab)
         
         if video is None:
             self.vid_cont.parent.remove_widget (self.vid_cont)
         else:
             self.vid_cont.source = video
             self.vid_cont.on_touch_down = self._click_vid
-        if len (pictures) == 0:
-            self.pic_cont.parent.remove_widget (self.pic_cont)
-        else:
-            for picture in pictures:
-                self.pic_cont.add_widget (picture)
-                picture.bind (on_touch_down = self._add_expanded_image)
-                picture.bind (height=self._size_picture)
+        self.pictures = pictures
+        self.temp = Button (size_hint = (1, 1))
 
-    def _size_picture (self, wid, value):
-        wid.width = wid.image_ratio * value
+    def set_up (self):
+        self.tab_cont.add_widget (self.t_lyt)
+        for picture in self.pictures:
+            ex = ExpandableImage (picture, self.parent)
+            ex.set_up ()
+            self.pic_cont.add_widget (ex)
+        print self.vid_cont.size
+        self.vid_cont.bind (size=self._draw_video_overlay)
 
-    def _add_expanded_image (self, wid, touch):
-        print touch
-        for children in self.parent.children:
-            if type (children) == FloatLayout:
-                return
-        self.pre_cont = FloatLayout (size_hint = (1, 1))
-        self.pre_cont.canvas.insert (0, Color (0,0,0,0.75))
-        self.pre_cont.canvas.insert (1, Rectangle (size=self.size))
-        _image = Image (source = wid.source,
-                        pos_hint={'center_x':0.5, 'center_y':0.5},
-                        size_hint=(0.8, 0.8))
-        _btn = Button (text='Dismiss', pos=(15, 15), size_hint= (0.2, 0.1))
-        _btn.bind (on_release =self._rmv_expanded_image)
-        self.pre_cont.add_widget (_image)
-        self.pre_cont.add_widget (_btn)
-        self.parent.add_widget (self.pre_cont)
-        print self.parent.children
-
-    def _rmv_expanded_image (self, touch):
-        print 'Here'
-        if self.pre_cont.parent is not None:
-            print 'Removed'
-            self.pre_cont.parent.remove_widget (self.pre_cont)
+    def _draw_video_overlay (self, wid, touch):
+        draw = wid.canvas.after
+        draw.clear ()
+        draw.add (Color (0,0,0,0.75))
+        draw.add (Rectangle (pos=self.vid_cont.pos, size=self.vid_cont.size))
+        center = (wid.x +wid.width/2, wid.y + wid.height/2)
+        side_len = 50
+        altitude = math.sqrt (side_len*side_len - (side_len/2)*(side_len/2))
+        point1 = (center[0]-altitude/2, center[1] + side_len/2)
+        point2 = (point1[0], center[1]-side_len/2)
+        point3 = (center[0] + altitude/2, center[1])
+        draw.add (Color (1,1,1,1))
+        draw.add (Triangle (points=(point1[0],point1[1],point2[0],point2[1],point3[0],point3[1])))
 
     def _click_vid (self, touch):
         if self.vid_cont.collide_point (touch.x, touch.y):
-            self.vid_cont.play = self.vid_cont.play == False
+            if self.vid_cont.play == True:
+                self._draw_video_overlay (self.vid_cont, None)
+            else:
+                self.vid_cont.canvas.after.clear ()
+            self.vid_cont.play = not (self.vid_cont.play)
 
 class InformationApp(App):
     def build (self):
@@ -101,6 +121,7 @@ class InformationApp(App):
         add = p.get_view ('Some Other View')
         top = FloatLayout (size_hint=(1, 1))
         top.add_widget (add)
+        add.set_up ()
         return top
         
 
@@ -142,8 +163,7 @@ class Parser:
                 line = fsource.readline ()
             v_pictures = []
             while ('Picture' in line):
-                temp_image = Image (source=self._get_property (line), size_hint=(None, 1), allow_stretch = True, keep_ratio = False)
-                v_pictures.append (temp_image)
+                v_pictures.append (self._get_property (line))
                 line = fsource.readline ()
             
             self.views [v_title] = InformationView (v_title, tabs, v_video, v_pictures)
@@ -169,5 +189,5 @@ class View:
         self.video = None
 
 if __name__ == '__main__':
-    # Config.set ('graphics', 'fullscreen', 'auto')
+    Config.set ('graphics', 'fullscreen', 'auto')
     InformationApp().run()
