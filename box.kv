@@ -1,6 +1,24 @@
 <BoxLay>
+	size_hint:1,1
+	title_box:titleBox
+	
 	canvas:
 		Rectangle:
             pos: 0,0
-            size: self.size
+            size: root.size
 			source: "bg.jpg"
+	BoxLayout:
+		id: titleBox
+		size_hint:1,0.2
+		pos:0,100
+		canvas:
+			Color:
+				rgb:1,1,1
+			Rectangle:
+				size:self.size
+		#Image:
+		#	source: "img/Extended.png"
+		#	size_hint:.1,.1
+		#	allow_stretch: True
+		#	keep_ratio:False
+		
