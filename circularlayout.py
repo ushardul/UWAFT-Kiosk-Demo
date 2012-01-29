@@ -7,13 +7,37 @@ from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from CircularAnimationUtilities import CircularAnimationUtilities
 from kivy.animation import Animation
+from kivy.core.window import Window
+from kivy.graphics import Color, Rectangle
+from kivy.uix.image import Image
 
 class CircularLayout (FloatLayout):
     def __init__ (self, radius = 0, **kvargs):
         self._first_widget = -1
         self._layout_radius = radius
         super (CircularLayout, self).__init__ (**kvargs)
-
+        
+    def windowFade(self,*args):
+        screen = FloatLayout(size=(Window.width,1000))
+        with screen.canvas:
+            Color(0,0,0,1)
+            Rectangle(size=Window.size)
+        self.parent.add_widget(screen,0)
+        
+    def wheelCallBack(self,button):
+        center = self.center
+        bCenter = button.center
+        children = self.children
+        theta = math.atan2(bCenter[1] - center[1],bCenter[0]-center[0])
+        r = 20
+        x = bCenter[0] + r*math.cos(theta)
+        y = bCenter[1] + r*math.sin(theta)
+        animation = Animation(center=(x,y),duration=1.5,t="out_elastic")
+        animation.bind(on_complete=self.windowFade)
+        animation.start(button)
+    
+    
+    
     def do_layout (self,*largs):
         if len (self.children) == 0:
             return
@@ -26,6 +50,7 @@ class CircularLayout (FloatLayout):
 
         # find the max widths and heights
         for c in children:
+            c.bind(on_press=self.wheelCallBack)
             csx, csy = c.size
             if csx > max_width:
                 max_width = csx
@@ -34,7 +59,7 @@ class CircularLayout (FloatLayout):
         # It is now known that an object with the greatest diagonal in the layout
         # will at MOST have a width and height equal to the max width and height
         max_diagonal = math.sqrt (max_width*max_width + max_height*max_height)
-
+        self.maxRadius = max_diagonal
         # The required radius is calculated using arc sectors and cosine law
         if self._layout_radius == 0:
             self._layout_radius = math.ceil (max_diagonal/2/math.sqrt (2*(1 - math.cos (math.pi/NUM_WIDGETS))))

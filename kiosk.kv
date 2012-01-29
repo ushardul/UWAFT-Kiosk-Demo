@@ -2,7 +2,7 @@
 #:import kivy kivy
 
 <KioskLayout>
-	wheel: wheel
+	wheel1: wheel
 	
 	canvas:
 		Rectangle:
@@ -15,35 +15,35 @@
 		
 		BoxLayout:
 			size_hint:1,0.2	
-			Image:
-				source:"img/Extended.png"
-				keep_ratio:False
-				allow_stretch:True
-				size_hint:0.5,1
-				Label:
-					text:"EcoCar2"
-					font_size: 66
-					bold: True
-					font_name:"fonts/coopbl.tff"
-					color:1,1,1,0.3
-					pos:root.width/2 - 55,root.height-self.height
+			Label:
+				canvas:
+					Rectangle:
+						source:"img/Extended.png"
+						size: self.size[0]/2,self.size[1]
+						pos:self.width/4,self.pos[1]
+				text:"EcoCar2"
+				font_size: 66
+				bold: True
+				font_name:"fonts/coopbl.tff"
+				color:1,1,1,0.3
+				pos:root.width/2 - 55,root.height-self.height
 		BoxLayout:
 			orientation:"horizontal"
-			size_hint:1,0.2
+			size_hint:1,0.3
 			Image:
 				source:"img/n2.png"
 			Image:
 				source:"img/n1.png"
 		BoxLayout:	
-			size_hint: 1,0.7
+			size_hint: 1,0.6
 			FloatLayout:
 				id: wheel
-				size_hint:1,1
 				Image:
-					pos:0,self.parent.height/3
+					pos:0,self.parent.height/2
+					allow_stretch:True
 					source:"wheel.png"
 		BoxLayout:
-			size_hint:1,0.2
+			size_hint:1,0.3
 			orientation:"horizontal"
 			Image:
 				source:"img/Networkarc.png"
