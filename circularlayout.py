@@ -10,19 +10,26 @@ from kivy.animation import Animation
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.uix.image import Image
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
 
 class CircularLayout (FloatLayout):
-    def __init__ (self, radius = 0, **kvargs):
+    def __init__ (self, radius = 0, pushAnimate=False,**kvargs):
         self._first_widget = -1
         self._layout_radius = radius
+        self.pushAnimate = pushAnimate
         super (CircularLayout, self).__init__ (**kvargs)
-        
+    
+    def infoView(self,*args):
+        popup = Popup(title='Doo', content=Label(text='Yo Thang'),size_hint=(None, None), size=(400, 400))
+        popup.open()
+    
     def windowFade(self,*args):
-        screen = FloatLayout(size=(Window.width,1000))
-        with screen.canvas:
-            Color(0,0,0,1)
-            Rectangle(size=Window.size)
-        self.parent.add_widget(screen,0)
+        screen = Image(size=Window.size,color=(0,0,0,0))
+        self.parent.parent.parent.parent.add_widget(screen,0)
+        animation = Animation(color=(0,0,0,1),duration=0.5)
+        animation.bind(on_complete=self.infoView)
+        animation.start(screen)
         
     def wheelCallBack(self,button):
         center = self.center
@@ -32,11 +39,9 @@ class CircularLayout (FloatLayout):
         r = 20
         x = bCenter[0] + r*math.cos(theta)
         y = bCenter[1] + r*math.sin(theta)
-        animation = Animation(center=(x,y),duration=1.5,t="out_elastic")
+        animation = Animation(center=(x,y),duration=0.5,t="out_back")
         animation.bind(on_complete=self.windowFade)
         animation.start(button)
-    
-    
     
     def do_layout (self,*largs):
         if len (self.children) == 0:
@@ -50,7 +55,8 @@ class CircularLayout (FloatLayout):
 
         # find the max widths and heights
         for c in children:
-            c.bind(on_press=self.wheelCallBack)
+            if self.pushAnimate:
+                c.bind(on_press=self.wheelCallBack)
             csx, csy = c.size
             if csx > max_width:
                 max_width = csx

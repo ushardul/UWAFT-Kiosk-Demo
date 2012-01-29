@@ -7,7 +7,7 @@
 	canvas:
 		Rectangle:
 			size:root.size
-			source: "bg.jpg"
+			source: "img/bg.jpg"
 	
 	BoxLayout:
 		orientation:"vertical"
@@ -31,22 +31,25 @@
 			orientation:"horizontal"
 			size_hint:1,0.3
 			Image:
-				source:"img/n2.png"
+				source:"img/n3.png"
 			Image:
-				source:"img/n1.png"
+				source:"img/n2.png"
 		BoxLayout:	
-			size_hint: 1,0.6
+			size_hint: 1,0.7
 			FloatLayout:
 				id: wheel
 				Image:
-					pos:0,self.parent.height/2
+					center:self.parent.center
 					allow_stretch:True
-					source:"wheel.png"
+					keep_ratio:False
+					source:"img/wheel.png"
+					size:400,400
+					size_hint:0,0
 		BoxLayout:
 			size_hint:1,0.3
 			orientation:"horizontal"
 			Image:
-				source:"img/Networkarc.png"
+				source:"img/n4.png"
 			Image:
-				source:"img/Comparc.png"
+				source:"img/n1.png"
 		
