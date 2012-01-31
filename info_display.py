@@ -48,10 +48,12 @@ class ExpandableImage (FloatLayout):
                         size_hint=(0.8, 0.8))
         _btn = Button (text='Hide', size_hint= (0.1, 0.8),
                        background_color=(1,1,1,0.75))
-        def _temp (wid, temp):
+        
+        def _center (wid, value):
             _btn.right = _image.right
             _btn.center_y = ((_image.top-_image.y)*0.5) + _image.y
-        _image.bind (pos = _temp)
+            
+        _image.bind (pos = _center)
         _btn.bind (on_release =self._rmv_expanded_image)
         self.pre_cont.add_widget (_image)
         self.pre_cont.add_widget (_btn)
@@ -63,14 +65,17 @@ class ExpandableImage (FloatLayout):
 class InformationView(BoxLayout):
     tab_cont = ObjectProperty(None)
     title = StringProperty ('Title')
+    icon = StringProperty (None)
     pic_cont = ObjectProperty (None)
     vid_cont = ObjectProperty (None)
     t_lyt = None
     pictures = None
 
-    def __init__ (self, title, tabs, video = None, pictures = [], **kvargs):
+    def __init__ (self, title, icon, tabs, video = None, pictures = [], **kvargs):
         super (BoxLayout, self).__init__(**kvargs)        
         self.title = title
+
+        self.icon = icon
 
         self.t_lyt = TabLayout ()
         for tab in tabs:
@@ -90,7 +95,6 @@ class InformationView(BoxLayout):
             ex = ExpandableImage (picture, self.parent)
             ex.set_up ()
             self.pic_cont.add_widget (ex)
-        print self.vid_cont.size
         self.vid_cont.bind (size=self._draw_video_overlay)
 
     def _draw_video_overlay (self, wid, touch):
@@ -117,13 +121,12 @@ class InformationView(BoxLayout):
 
 class InformationApp(App):
     def build (self):
-        p = Parser ('C:\Users\Shardul\Desktop\UWAFT-Kiosk-Demo\info.uwaft')
-        add = p.get_view ('Some Other View')
+        p = Parser ('info.uwaft')
+        add = p.get_view ('img/icon2.png')
         top = FloatLayout (size_hint=(1, 1))
         top.add_widget (add)
         add.set_up ()
         return top
-        
 
 class Parser:
     def __init__ (self, parseSource):
@@ -132,6 +135,8 @@ class Parser:
         line = fsource.readline ()
         while ('View' in line):
             v_title = self._get_property (line)
+            line = fsource.readline ()
+            v_icon = self._get_property (line)
             line = fsource.readline ()
             tabs = []
             while ('Tab' in line):
@@ -166,27 +171,21 @@ class Parser:
                 v_pictures.append (self._get_property (line))
                 line = fsource.readline ()
             
-            self.views [v_title] = InformationView (v_title, tabs, v_video, v_pictures)
+            self.views [v_icon] = InformationView (v_title, v_icon, tabs, v_video, v_pictures)
         if len (self.views) == 0:
             raise SyntaxError ('No views specified')
 
     def _get_property (self, raw):
-        return raw.split (':')[1].lstrip().rstrip()
+        temp = raw.split (':')
+        if len (temp) != 2:
+            raise SyntaxError ('Required property value not defined')
+        return temp[1].lstrip().rstrip()
 
     def _set_text_size (self, wid, size):
         wid.text_size = size
 
     def get_view (self, name):
         return self.views[name]
-    
-
-class View:
-
-    def __init__ (self):
-        self.title = 'Information'
-        self.tabs = []
-        self.pictures = []
-        self.video = None
 
 if __name__ == '__main__':
     Config.set ('graphics', 'fullscreen', 'auto')
