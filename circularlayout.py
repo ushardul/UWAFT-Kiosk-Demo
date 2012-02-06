@@ -1,95 +1,148 @@
-__all__ = ('CircularLayout', )
+__all__ = ('CircularLayout',)
 import math
+import types
 from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
+from kivy.uix.button import Button
+from CircularAnimationUtilities import CircularAnimationUtilities
+from kivy.animation import Animation
+from kivy.core.window import Window
+from kivy.graphics import Color, Rectangle
+from kivy.uix.image import Image
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from info_display import Parser
 
 class CircularLayout (FloatLayout):
-    def __init__(self, **kvargs):
-        # The max widgets that the layout can hold, I think it does not have a purpose but I havent checked
-        self._max_widgets = 0
-        # Stores which widget is exactly to the right, even after rotation
+    def __init__ (self, radius = 0, pushAnimate=False,**kvargs):
         self._first_widget = -1
-        # Kivy docs explain timers
-        self._trigger_layout = Clock.create_trigger(self._do_layout, -1)
-        super (FloatLayout, self).__init__(**kvargs)
-        # Any changes to these attributes will trigger a method call to _do_layout at the earliest time possible
-        self.bind (children = self._trigger_layout,
-                   pos = self._trigger_layout,
-                   pos_hint = self._trigger_layout,
-                   size_hint = self._trigger_layout,
-                   size = self._trigger_layout)
-
-    def _do_layout (self, *largs):
-        if len(self.children) == 0:
-            return
-        # see above
-        self._max_widgets = num_widgets = len(self.children)
-        # stores in local variables for efficient access
-        temp_center_x, temp_center_y = self.center
-        children = self.children[:]
-
+        self._layout_radius = radius
+        self.pushAnimate = pushAnimate
+        super (CircularLayout, self).__init__ (**kvargs)
+    
+    def infoView(self,*args):
+        self.parent.parent.parent.parent.remove_widget(self.screen)
+        self.p = Parser ('info.uwaft')
+        add = self.p.get_view ('Some Other View')
+        top = FloatLayout (size=Window.size)
+        top.add_widget (add)
+        add.set_up ()
+        self.parent.parent.parent.parent.add_widget(top,0)
+    
+    def windowFade(self,*args):
+        self.screen = Image(size=Window.size,color=(0,0,0,0))
+        self.parent.parent.parent.parent.add_widget(self.screen,0)
+        animation = Animation(color=(0,0,0,1),duration=0.5)
+        animation.bind(on_complete=self.infoView)
+        animation.start(self.screen)
         
+    def wheelCallBack(self,button):
+        center = self.center
+        bCenter = button.center
+        children = self.children
+        theta = math.atan2(bCenter[1] - center[1],bCenter[0]-center[0])
+        r = 20
+        x = bCenter[0] + r*math.cos(theta)
+        y = bCenter[1] + r*math.sin(theta)
+        animation = Animation(center=(x,y),duration=0.5,t="out_back")
+        animation.bind(on_complete=self.windowFade)
+        animation.start(button)
+    
+    def do_layout (self,*largs):
+        if len (self.children) == 0:
+            return
+        # local variable initialization for efficiency
+        CENTER = self.center
+        children = self.children [:]
+        NUM_WIDGETS = len(children)
         max_width = max_height = 0
-        # looks for the max possible diagonal that can occur by finding max possible width and height
+
+        # find the max widths and heights
         for c in children:
+            if self.pushAnimate:
+                c.bind(on_press=self.wheelCallBack)
             csx, csy = c.size
             if csx > max_width:
                 max_width = csx
             if csy > max_height:
                 max_height = csy
+        # It is now known that an object with the greatest diagonal in the layout
+        # will at MOST have a width and height equal to the max width and height
         max_diagonal = math.sqrt (max_width*max_width + max_height*max_height)
+        self.maxRadius = max_diagonal
+        # The required radius is calculated using arc sectors and cosine law
+        if self._layout_radius == 0:
+            self._layout_radius = math.ceil (max_diagonal/2/math.sqrt (2*(1 - math.cos (math.pi/NUM_WIDGETS))))
+        LAYOUT_RADIUS = self._layout_radius
 
-        # Some math to calculate minimum radius required to a widget given widget radius (max_diagonal/2)
-        # and number of widgets. Math works I believe
-        layout_radius = math.ceil (max_diagonal/2/math.sqrt(2*(1-math.cos(math.pi/len(children)))))
-
-        # Iterates at each angle starting with the first widget set by the variable _first_widget
-        # and does some work to find the widget's position
+        # Now simply position the center of the children's evenly over the circle
         theta = 0
-        theta_increment = 2*math.pi/len(self.children)
+        THETA_INCREMENT = 2*math.pi/NUM_WIDGETS
         i = self._first_widget
-
-        # No do/while loop in python so implemented as an infinite loop with a break
-        # Basically, the first widget can be anywhere in the list and each widget in the list must be drawn in order
-        # from that first widget including the ones behind it in terms of index
-        # So, iterates with modulo operations
+        # Using modulous operations, starts laying out children from the "first"
+        # child specified - the child directly to the right in the layout
         while True:
-            new_center = temp_center_x + math.cos (theta)*layout_radius, temp_center_y + math.sin (theta)*layout_radius
-            self.reposition_child (children[i], center=new_center)
-            theta += theta_increment
-            i = (i - 1)%num_widgets
+            center2=(CENTER[0] + math.cos (theta)*LAYOUT_RADIUS, CENTER[1] + math.sin (theta)*LAYOUT_RADIUS)
+            self.reposition_child(children[i],
+                                  center=(CENTER[0] + math.cos (theta)*LAYOUT_RADIUS, CENTER[1] + math.sin (theta)*LAYOUT_RADIUS))
+            theta += THETA_INCREMENT
+            i = (i - 1)%NUM_WIDGETS
             if i == self._first_widget:
                 break
 
-    def do_rotation (self, steps=1):
-        # Some modulo operations used to rotate the first child position
-        num_widgets = len(self.children)
-        if num_widgets == 0:
+    def do_rotation (self, callback=None, oncall=None, steps = 1, incrDenom = 100, circDuration=10, radius = 0):
+        if radius == 0:
+            radius = self._layout_radius
+        NUM_WIDGETS = len(self.children)
+        if NUM_WIDGETS == 0:
             return
-        steps %= num_widgets
-        self._first_widget = (self._first_widget - steps)%num_widgets
-        self._do_layout ()
+        animations = []
+        
+        theta = 0
+        negative = 1
 
+        if (steps > 0):
+            negative = -1
+
+        THETA_INCREMENT = 2*math.pi/NUM_WIDGETS*negative
+        
+        for i in range (0, NUM_WIDGETS):
+            animations.append (CircularAnimationUtilities.createArcAnimation(circDuration, self.center, radius, theta, theta + THETA_INCREMENT,incrDenom))
+            animations[i].bind(on_progress=oncall)
+            theta += THETA_INCREMENT
+
+        i = self._first_widget
+        
+        #bind the callback function to the first widget if a callback is sent as parameter
+        if callback != None:
+            animations[i].bind(on_complete=callback)
+        
+        animIndex = 0
+        children = self.children [:]
+        while True:
+            animations[animIndex].start (children[i])
+            animIndex += 1
+            i = (i - negative)%NUM_WIDGETS
+            if i == self._first_widget:
+                break
+
+        self._first_widget = (self._first_widget - steps)%NUM_WIDGETS
+                        
+
+    # Gets children as the first children being the one immediately to the right
     def get_child (self, index=0):
         return self.children[(self._first_widget + index)%len(self.children)]
 
+
+    # Binds the new widget callback so that the layout is rearranged when
+    # a new widget is added and changes the first widget
     def add_widget (self, widget, index=0):
-        # Binds the new widget callback so that the layout is rearranged when a new widget is added
         self._first_widget += 1
-        widget.bind (
-            size = self._trigger_layout,
-            size_hint = self._trigger_layout,
-            pos = self._trigger_layout,
-            pos_hint = self._trigger_layout)
         return super (FloatLayout, self).add_widget (widget, index)
 
+    # Binds the remove widget callback so that layout is rearranged when
+    # a widget is removed and changes the first widget
     def remove_widget (self, widget):
-        # Binds the new widget callback so that the layout is rearranged when a new widget is added
         self._first_widget -= 1
-        widget.unbind(
-            size = self._trigger_layout,
-            size_hint = self._trigger_layout,
-            pos = self._trigger_layout,
-            pos_hint = self._trigger_layout)
-        return super(Layout, self).remove_widget(widget)
+        return super (FloatLayout, self).remove_widget (widget)
