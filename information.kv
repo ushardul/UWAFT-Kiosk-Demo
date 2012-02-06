@@ -1,0 +1,57 @@
+#:kivy 1.0.9
+
+<InformationView>:	
+	size_hint: (1, 1)
+	orientation: 'vertical'
+	tab_cont: tab_container
+	pic_cont: picture_container
+	vid_cont: video_container
+	padding: 10
+	spacing: 5
+	
+	canvas:
+		Rectangle:
+			source: 'img/bg.jpg'
+			size: (root.width, root.height)
+
+	Label:
+		text: root.title
+		size_hint_y: 0.05
+		font_size: 18
+		bold: True
+		
+	BoxLayout:
+		id: tab_container
+		size_hint: (1, 0.65)
+		orientation: 'vertical'
+				
+	BoxLayout:
+		orientation: 'horizontal'
+		size_hint_y: 0.3
+		spacing: 10
+		
+		Video:
+			id: video_container
+			size_hint: (0.3, 1)
+
+		ScrollView:
+			size_hint_y: 1
+			
+			GridLayout:
+				id: picture_container
+				rows:1
+				spacing:10
+				size_hint: (1, 1)
+					
+<TabLayout>:
+	content_obj: content_obj
+	header_obj: header_obj
+	orientation:'vertical'
+	
+	GridLayout:
+		id:header_obj
+		rows:1
+		size_hint: (1, 0.1)
+	BoxLayout:
+		id: content_obj
+		size_hint: (1, 0.9)
