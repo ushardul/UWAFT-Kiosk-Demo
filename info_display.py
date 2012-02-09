@@ -14,6 +14,7 @@ from kivy.uix.label import Label
 from kivy.uix.image import Image
 from kivy.uix.floatlayout import FloatLayout
 from kivy.graphics import *
+from kivy.uix.scatter import Scatter
 
 class ExpandableImage (FloatLayout):
 
@@ -46,8 +47,8 @@ class ExpandableImage (FloatLayout):
                         pos_hint={'center_x':0.5, 'center_y':0.5},
                         keep_ratio =False, allow_stretch=True, 
                         size_hint=(0.8, 0.8))
-        _btn = Button (text='Hide', size_hint= (0.1, 0.8),
-                       background_color=(1,1,1,0.75))
+        _btn = Button (text='Hide', size_hint = (0.1, 0.8),
+                       background_color = (1,1,1,0.75))
         
         def _center (wid, value):
             _btn.right = _image.right
@@ -57,6 +58,7 @@ class ExpandableImage (FloatLayout):
         _btn.bind (on_release =self._rmv_expanded_image)
         self.pre_cont.add_widget (_image)
         self.pre_cont.add_widget (_btn)
+
         self._expansion_cont.add_widget (self.pre_cont)
     
     def _rmv_expanded_image (self, touch):
@@ -68,6 +70,7 @@ class InformationView(BoxLayout):
     icon = StringProperty (None)
     pic_cont = ObjectProperty (None)
     vid_cont = ObjectProperty (None)
+    close_btn = ObjectProperty (None)
     t_lyt = None
     pictures = None
 
@@ -90,6 +93,7 @@ class InformationView(BoxLayout):
         self.temp = Button (size_hint = (1, 1))
 
     def set_up (self):
+        self.close_btn.bind (on_release=self.close)
         self.tab_cont.add_widget (self.t_lyt)
         for picture in self.pictures:
             ex = ExpandableImage (picture, self.parent)
@@ -119,14 +123,18 @@ class InformationView(BoxLayout):
                 self.vid_cont.canvas.after.clear ()
             self.vid_cont.play = not (self.vid_cont.play)
 
+    def close (self, wid):
+        self.remove_widget(self.vid_cont)
+        self.parent.remove_widget (self)
+
 class InformationApp(App):
     def build (self):
-        p = Parser ('info.uwaft')
-        add = p.get_view ('img/icon2.png')
-        top = FloatLayout (size_hint=(1, 1))
-        top.add_widget (add)
-        add.set_up ()
-        return top
+        p = Parser ('C:\Users\Shardul\Desktop\UWAFT-Kiosk-Demo\info.uwaft')
+        view = p.get_view ('img/icon1.png')
+        cont = FloatLayout (size_hint=(1, 1))
+        cont.add_widget (view)
+        view.set_up ()
+        return cont
 
 class Parser:
     def __init__ (self, parseSource):
