@@ -40,24 +40,25 @@ class ExpandableImage (FloatLayout):
         for child in self._expansion_cont.children:
             if type (child) == FloatLayout:
                 self._expansion_cont.remove_widget (child)
-        self.pre_cont = FloatLayout (size_hint = (1, 1))
+        self.pre_cont = BoxLayout (size_hint = (1, 1), padding=10, orientation='horizontal')
         self.pre_cont.canvas.add (Color (0,0,0,0.75))
         self.pre_cont.canvas.add (Rectangle (size=self._expansion_cont.size))
+        _handler = Scatter ()
         _image = Image (source = self._img.source,
-                        pos_hint={'center_x':0.5, 'center_y':0.5},
-                        keep_ratio =False, allow_stretch=True, 
-                        size_hint=(0.8, 0.8))
-        _btn = Button (text='Hide', size_hint = (0.1, 0.8),
-                       background_color = (1,1,1,0.75))
-        
-        def _center (wid, value):
-            _btn.right = _image.right
-            _btn.center_y = ((_image.top-_image.y)*0.5) + _image.y
-            
-        _image.bind (pos = _center)
+                        keep_ratio =False, allow_stretch=True)
+        _btn = Button (text='Hide', size_hint = (0.05, 1))
+
+        def _center (wid, val):
+            img_width = val[0]*0.75
+            img_height = img_width / _image.image_ratio
+            _image.size = (img_width, img_height)
+            _image.pos = ((val[0] - img_width)/2, (val[1] - img_height) / 2)
+
+        _handler.bind (size=_center)
         _btn.bind (on_release =self._rmv_expanded_image)
-        self.pre_cont.add_widget (_image)
+        _handler.add_widget (_image)
         self.pre_cont.add_widget (_btn)
+        self.pre_cont.add_widget (_handler)
 
         self._expansion_cont.add_widget (self.pre_cont)
     
@@ -129,7 +130,7 @@ class InformationView(BoxLayout):
 
 class InformationApp(App):
     def build (self):
-        p = Parser ('C:\Users\Shardul\Desktop\UWAFT-Kiosk-Demo\info.uwaft')
+        p = Parser ('info.uwaft')
         view = p.get_view ('img/icon1.png')
         cont = FloatLayout (size_hint=(1, 1))
         cont.add_widget (view)
