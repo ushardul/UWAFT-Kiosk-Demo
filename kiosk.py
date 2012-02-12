@@ -30,7 +30,7 @@ class KioskLayout(FloatLayout):
 		return scatter
 	
 	def layout_setup(self):
-		self.p = Parser('C:\Users\Shardul\Desktop\UWAFT-Kiosk-Demo - Copy\info.uwaft')
+		self.p = Parser('info.uwaft')
 	
 		wheelRim = CircularLayout(pos=(Window.center[0],Window.center[1]-40),size_hint=(None,None),radius=self.wheel1.parent.height*1,rotate=True)
 		for i in range(1,5):
