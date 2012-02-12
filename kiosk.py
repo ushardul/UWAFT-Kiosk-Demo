@@ -1,6 +1,7 @@
 import kivy
 
 from kivy.app import App
+from kivy.config import Config
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 from kivy.core.window import Window
@@ -12,6 +13,7 @@ from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProper
 from circularlayout import CircularLayout
 from kivy.uix.scatter import Scatter
 from kivy.clock import Clock
+from info_display import Parser
 
 class KioskLayout(FloatLayout):
 	wheel1 = ObjectProperty(None)
@@ -28,20 +30,18 @@ class KioskLayout(FloatLayout):
 		return scatter
 	
 	def layout_setup(self):
-		c2 = CircularLayout(pos=(Window.center[0],Window.center[1]-40),size_hint=(None,None),radius=self.wheel1.parent.height*1,rotate=True)
-		button1 = [5]
+		self.p = Parser('C:\Users\Shardul\Desktop\UWAFT-Kiosk-Demo - Copy\info.uwaft')
+	
+		wheelRim = CircularLayout(pos=(Window.center[0],Window.center[1]-40),size_hint=(None,None),radius=self.wheel1.parent.height*1,rotate=True)
 		for i in range(1,5):
-			button1.append(Button (background_normal = 'img/n'+str(i)+'.png', background_down='img/n'+str(i)+'.png',size_hint=(None,None),size=(self.wheel1.parent.size[0]*1.1,self.wheel1.parent.size[1]*1.1)))
-			c2.add_widget(button1[i])
-		self.wheel1.add_widget(c2)
+			wheelRim.add_widget(Button (background_normal = 'img/n'+str(i)+'.png', background_down='img/n'+str(i)+'.png',size_hint=(None,None),size=(self.wheel1.parent.size[0]*1.1,self.wheel1.parent.size[1]*1.1)))
+		self.wheel1.add_widget(wheelRim)
 		
-		#circular menu items
-		c = CircularLayout(pos=(Window.center[0],Window.center[1]-55),size_hint=(None,None),radius=self.wheel1.parent.height*1.7,pushAnimate=True)
-		button = [5]
-		for i in range(1,6):
-			button.append(Button (background_normal = 'img/'+str(i)+'.png', background_down='img/'+str(i)+'.png',size_hint=(None,None),size=(self.wheel1.parent.size[0]*1.1,self.wheel1.parent.size[1]*1.1)))
-			c.add_widget(button[i])
-		self.wheel1.add_widget(c)
+		wheelMenu = CircularLayout(fin=self.p,pos=(Window.center[0],Window.center[1]-55),size_hint=(None,None),radius=self.wheel1.parent.height*1.7,pushAnimate=True)
+		self.menu = wheelMenu
+		for view in self.p.v_icons:
+			wheelMenu.add_widget(Button (background_normal = view, background_down=view,size_hint=(None,None),size=(self.wheel1.parent.size[0]*1.1,self.wheel1.parent.size[1]*1.1)))
+		self.wheel1.add_widget(wheelMenu)
 		
 		scatterImg = []
 		size = (200,200)
@@ -56,9 +56,10 @@ class KioskLayout(FloatLayout):
 	
 class KioskApp(App):
 	def build (self):
-		parent = KioskLayout()
+                parent = KioskLayout()
 		parent.layout_setup()
 		return parent
 
 if __name__ == '__main__':
+        Config.set ('graphics', 'fullscreen', 'auto')
 	KioskApp().run()

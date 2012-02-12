@@ -1,5 +1,4 @@
 #:kivy 1.0
-#:import kivy kivy
 
 <KioskLayout>
 	wheel1: wheel
@@ -53,12 +52,12 @@
 			Image:
 				source:"img/n1.png"
 
-<InformationView>:	
-	size_hint: (1, 1)
-	orientation: 'vertical'
+<InformationView>:
+	orientation: 'horizontal'
 	tab_cont: tab_container
 	pic_cont: picture_container
 	vid_cont: video_container
+	close_btn: close_button
 	padding: 10
 	spacing: 5
 	
@@ -67,34 +66,45 @@
 			source: 'img/bg.jpg'
 			size: (root.width, root.height)
 
-	Label:
-		text: root.title
-		size_hint_y: 0.05
-		font_size: 18
-		bold: True
-		
+	Button:
+		id: close_button
+		text: 'Back'
+		size_hint: (0.05, 1)
+		background_color: (1, 1, 1, 0.1)
+	
 	BoxLayout:
-		id: tab_container
-		size_hint: (1, 0.65)
 		orientation: 'vertical'
-				
-	BoxLayout:
-		orientation: 'horizontal'
-		size_hint_y: 0.3
-		spacing: 10
-		
-		Video:
-			id: video_container
-			size_hint: (0.3, 1)
+		spacing: 5
+		size_hint: (0.95, 1)
 
-		ScrollView:
-			size_hint_y: 1
+		Label:
+			text: root.title
+			size_hint_y: 0.05
+			font_size: 18
+			bold: True
 			
-			GridLayout:
-				id: picture_container
-				rows:1
-				spacing:10
-				size_hint: (1, 1)
+		BoxLayout:
+			id: tab_container
+			size_hint: (1, 0.65)
+			orientation: 'vertical'
+					
+		BoxLayout:
+			orientation: 'horizontal'
+			size_hint_y: 0.3
+			spacing: 10
+			
+			Video:
+				id: video_container
+				size_hint: (0.3, 1)
+
+			ScrollView:
+				size_hint_y: 1
+				
+				GridLayout:
+					id: picture_container
+					rows:1
+					spacing:10
+					size_hint: (1, 1)
 					
 <TabLayout>:
 	content_obj: content_obj

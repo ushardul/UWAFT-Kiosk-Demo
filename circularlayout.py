@@ -3,6 +3,7 @@ import math
 import types
 from kivy.clock import Clock
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
 from kivy.uix.button import Button
 from CircularAnimationUtilities import CircularAnimationUtilities
@@ -15,29 +16,29 @@ from kivy.uix.label import Label
 from info_display import Parser
 
 class CircularLayout (FloatLayout):
-    def __init__ (self, radius = 0, pushAnimate=False,**kvargs):
+    def __init__ (self, fin=None, radius = 0, pushAnimate=False,**kvargs):
         self._first_widget = -1
         self._layout_radius = radius
         self.pushAnimate = pushAnimate
+        self.p = fin
         super (CircularLayout, self).__init__ (**kvargs)
     
-    def infoView(self,*args):
+    def infoView(self,a,img):
+        self.do_layout()
         self.parent.parent.parent.parent.remove_widget(self.screen)
-        self.p = Parser ('info.uwaft')
-        add = self.p.get_view ('Some Other View')
-        top = FloatLayout (size=Window.size)
-        top.add_widget (add)
-        add.set_up ()
-        self.parent.parent.parent.parent.add_widget(top,0)
+        view = self.p.get_view(img.button.background_normal)
+        self.parent.parent.parent.parent.add_widget(view)
+        view.set_up()
     
-    def windowFade(self,*args):
+    def windowFade(self,anim,button):
         self.screen = Image(size=Window.size,color=(0,0,0,0))
+        self.screen.button = button
         self.parent.parent.parent.parent.add_widget(self.screen,0)
-        animation = Animation(color=(0,0,0,1),duration=0.5)
+        animation = Animation(color=(0,0,0,1),duration=0.5,t="linear")
         animation.bind(on_complete=self.infoView)
         animation.start(self.screen)
         
-    def wheelCallBack(self,button):
+    def icon_vector_anim(self,button):
         center = self.center
         bCenter = button.center
         children = self.children
@@ -60,8 +61,6 @@ class CircularLayout (FloatLayout):
 
         # find the max widths and heights
         for c in children:
-            if self.pushAnimate:
-                c.bind(on_press=self.wheelCallBack)
             csx, csy = c.size
             if csx > max_width:
                 max_width = csx
@@ -139,6 +138,7 @@ class CircularLayout (FloatLayout):
     # a new widget is added and changes the first widget
     def add_widget (self, widget, index=0):
         self._first_widget += 1
+        widget.bind(on_press=self.icon_vector_anim)
         return super (FloatLayout, self).add_widget (widget, index)
 
     # Binds the remove widget callback so that layout is rearranged when

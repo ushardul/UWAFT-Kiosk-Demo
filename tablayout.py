@@ -4,7 +4,6 @@ kivy.require ('1.0.9')
 from kivy.uix.button import Button
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.properties import DictProperty, ObjectProperty, StringProperty
 
 class TabLayout (BoxLayout):
