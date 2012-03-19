@@ -1,0 +1,2 @@
+title=UWAFT Kioskauthor=Shardul and Geo
+orientation=landscape

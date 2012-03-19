@@ -60,6 +60,6 @@ class KioskApp(App):
 		parent.layout_setup()
 		return parent
 
-if __name__ == '__main__':
+if __name__ in ('__main__', '__android__'):
         Config.set ('graphics', 'fullscreen', 'auto')
 	KioskApp().run()
